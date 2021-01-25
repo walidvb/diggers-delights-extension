@@ -1,13 +1,11 @@
 import handleDomMutation from './onDomMutation'
+import buildIframe from './iframeBuilders'
 
 export default function init(document){
-
 	handleDomMutation(document, handleFacebookVideos, {
 		debounce: true
 	})
-
 	function handleFacebookVideos() {
-		const threadContainer = document.querySelectorAll('#pagelet_group_')[0];
 		// const threadContainer = document.querySelectorAll('[aria-label="News Feed"]')[0];
 		const links = [...document.querySelectorAll('[data-pagelet="GroupFeed"] a:not(._ns_):not([vbed])[target="_blank"]')]
 		const getDomElementMeta = elem => ({
@@ -36,7 +34,7 @@ export default function init(document){
 			}
 			elem.onclick = (evt) => {
 				evt.preventDefault()
-				const markup = buildMarkup(url)
+				const markup = buildIframe(url)
 				elem.insertAdjacentHTML('beforebegin', markup)
 				elem.style.display = 'none'
 				elem.remove()
@@ -45,19 +43,7 @@ export default function init(document){
 	}
 }
 
-function buildMarkup(url) {
-	const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-	const match = url.match(regExp);
-	const videoId = (match && match[2].length === 11)
-		? match[2]
-		: null;
-	if(!videoId){
-		return
-	}
-	const iframeMarkup = '<iframe width="560" height="315" src="//www.youtube.com/embed/' 
-			+ videoId + '" frameborder="0" allowfullscreen></iframe>';
-	return iframeMarkup
-}
+
 
 
 function getURL(elem){
