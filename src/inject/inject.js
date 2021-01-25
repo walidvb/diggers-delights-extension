@@ -125,12 +125,34 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = handleDomMutation;
 
-function handleDomMutation(document, cb) {
+function handleDomMutation(document, cb, _ref) {
+  var _ref$debounce = _ref.debounce,
+      debounce = _ref$debounce === void 0 ? 1 : _ref$debounce;
+
+  var debouncer = function debouncer(fn) {
+    var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : debounce;
+    var timeout;
+    return function () {
+      var _this = this;
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      clearTimeout(timeout);
+      timeout = setTimeout(function () {
+        return fn.call.apply(fn, [_this].concat(args));
+      }, wait);
+    };
+  };
+
   MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
   var observer = new MutationObserver(function (mutations, observer) {
     // fired when a mutation occurs
-    console.log(mutations, observer);
-    cb(mutations, observer); // ...
+    cb();
+    debouncer(function () {
+      return console.log('debounced!');
+    });
   }); // define what element should be observed by the observer
   // and what types of mutations trigger the callback
 
@@ -152,14 +174,6 @@ var _onDomMutation = _interopRequireDefault(require("./onDomMutation"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -168,45 +182,128 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function init(document) {
-  (0, _onDomMutation.default)(document, handleFacebookVideos);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
-  function handleFacebookVideos(document) {
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function init(document) {
+  (0, _onDomMutation.default)(document, handleFacebookVideos, {
+    debounce: true
+  });
+
+  function handleFacebookVideos() {
     var threadContainer = document.querySelectorAll('#pagelet_group_')[0]; // const threadContainer = document.querySelectorAll('[aria-label="News Feed"]')[0];
 
-    var links = document.querySelectorAll('[data-pagelet="GroupFeed"] a:not(._ns_)[target="_blank"]');
+    var links = _toConsumableArray(document.querySelectorAll('[data-pagelet="GroupFeed"] a:not(._ns_):not([vbed])[target="_blank"]'));
 
-    var getElems = function getElems(elem) {
-      if (!/l\.facebook\.com/.test(elem.href)) {
-        return elem.href;
-      }
+    var getDomElementMeta = function getDomElementMeta(elem) {
+      return {
+        url: getURL(elem),
+        elem: elem
+      };
+    }; // facebook displays 2 <a> for top posts
+    // const elems = links.map(getDomElementMeta)
+    // facebook displays 2 <a> for top posts
 
-      return elem.search.slice(1).split('&').map(function (param) {
-        var _param$split = param.split('='),
-            _param$split2 = _slicedToArray(_param$split, 2),
-            k = _param$split2[0],
-            v = _param$split2[1];
 
-        if (k === 'u') {
-          return {
-            url: decodeURIComponent(v),
-            target: elem.querySelector('img')
-          };
-        }
-
-        return undefined;
-      }).filter(function (e) {
-        return e;
-      })[0];
-    };
-
-    var uniqueLinks = _toConsumableArray(new Set(_toConsumableArray(links).map(getElems))).filter(function (a) {
-      return a;
+    var elemsWithDuplicate = links.map(getDomElementMeta);
+    var urls = elemsWithDuplicate.map(function (_ref) {
+      var url = _ref.url;
+      return url;
+    });
+    var elems = elemsWithDuplicate.filter(function (_ref2, index) {
+      var url = _ref2.url,
+          elem = _ref2.elem;
+      // prevent rerunning on a 'duplicate' link
+      var hasDupe = urls.includes(url, index + 1);
+      return !hasDupe;
     });
 
-    console.log(uniqueLinks);
+    function isCandidate(el) {
+      var isImagePartOfThePost = el.querySelector('img');
+      return isImagePartOfThePost;
+    }
+
+    elems.map(function (_ref3, i) {
+      var url = _ref3.url,
+          elem = _ref3.elem;
+
+      if (!isCandidate(elem)) {
+        return;
+      }
+
+      elem.onclick = function (evt) {
+        evt.preventDefault();
+        var markup = buildMarkup(url);
+        elem.insertAdjacentHTML('beforebegin', markup);
+        elem.style.display = 'none';
+        elem.remove();
+      };
+    });
   }
 }
+
+function buildMarkup(url) {
+  var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  var match = url.match(regExp);
+  var videoId = match && match[2].length === 11 ? match[2] : null;
+
+  if (!videoId) {
+    return;
+  }
+
+  var iframeMarkup = '<iframe width="560" height="315" src="//www.youtube.com/embed/' + videoId + '" frameborder="0" allowfullscreen></iframe>';
+  return iframeMarkup;
+}
+
+function getURL(elem) {
+  if (!/l\.facebook\.com/.test(elem.href)) {
+    return elem.href;
+  }
+
+  return elem.search.slice(1).split('&').map(function (param) {
+    var _param$split = param.split('='),
+        _param$split2 = _slicedToArray(_param$split, 2),
+        k = _param$split2[0],
+        v = _param$split2[1];
+
+    if (k === 'u') {
+      return rmFclid(decodeURIComponent(v));
+    }
+
+    return undefined;
+  }).filter(function (e) {
+    return e;
+  })[0];
+}
+
+function rmFclid(href) {
+  var a = document.createElement('a');
+  a.href = href;
+  var param = 'fbclid';
+
+  if (a.search.indexOf(param + '=') !== -1) {
+    var replace = '';
+
+    try {
+      var url = new URL(a);
+      url.searchParams.delete(param);
+      replace = url.href;
+    } catch (ex) {
+      var regExp = new RegExp('[?&]' + param + '=.*');
+      replace = a.search.replace(regExp, '');
+      replace = a.pathname + replace + a.hash;
+    }
+
+    return replace;
+  }
+}
+
+;
 },{"./onDomMutation":"fb/onDomMutation.js"}],"inject.js":[function(require,module,exports) {
 "use strict";
 
