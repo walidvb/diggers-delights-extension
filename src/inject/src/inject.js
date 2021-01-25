@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime'
 import fb from './fb'
 
 chrome.extension.sendMessage({}, function(response) {

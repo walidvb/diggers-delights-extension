@@ -33,11 +33,13 @@ export default function init(document){
 				return
 			}
 			elem.onclick = (evt) => {
-				evt.preventDefault()
-				const markup = buildIframe(url)
-				elem.insertAdjacentHTML('beforebegin', markup)
-				elem.style.display = 'none'
-				elem.remove()
+				evt.preventDefault();
+				(async () => {
+					const markup = await buildIframe(url)
+					elem.insertAdjacentHTML('beforebegin', markup)
+					elem.style.display = 'none'
+					elem.remove()
+				})()
 			}
 		})
 	}
