@@ -1,5 +1,7 @@
+export const SC_REGEXP = /soundcloud|sc.com/
+
 export default async function soundcloud(url){
-  if(!/soundcloud|sc.com/.test(url)){
+  if(!SC_REGEXP.test(url)){
     return
   }
 

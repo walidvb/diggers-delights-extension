@@ -1,13 +1,17 @@
 import handleDomMutation from './onDomMutation'
 import buildIframe from './iframeBuilders'
+import { isCandidate } from './iframeBuilders/index';
 
+// fb yields two links, one with the image
+// the other with the video title
+const TOP_LINK_CLASSES_DIFF = ".datstx6m.k4urcfbm"
 export default function init(document){
 	handleDomMutation(document, handleFacebookVideos, {
 		debounce: true
 	})
 	function handleFacebookVideos() {
 		// const threadContainer = document.querySelectorAll('[aria-label="News Feed"]')[0];
-		const links = [...document.querySelectorAll('[data-pagelet="GroupFeed"] a:not(._ns_):not([vbed])[target="_blank"]')]
+		const links = [...document.querySelectorAll(`a${TOP_LINK_CLASSES_DIFF}:not(._ns_):not([vbed])[target="_blank"]`)]
 		const getDomElementMeta = elem => ({
 			url: getURL(elem),
 			elem,
@@ -19,17 +23,20 @@ export default function init(document){
 		const elemsWithDuplicate = links.map(getDomElementMeta)
 		let urls = elemsWithDuplicate.map(({ url }) => url)
 		let elems = elemsWithDuplicate.filter(({ url, elem }, index) => {
+			if(!isCandidate(url)){
+				return false
+			}
 			// prevent rerunning on a 'duplicate' link
 			const hasDupe = urls.includes(url, index + 1)
 			return !hasDupe
 		})
 
-		function isCandidate(el){
+		function isWrapperElement(el){
 			const isImagePartOfThePost = el.querySelector('img')
 			return isImagePartOfThePost
 		}
 		elems.map(({ url, elem }, i) => {
-			if (!isCandidate(elem)){
+			if (!isWrapperElement(elem)){
 				return
 			}
 			elem.onclick = (evt) => {
