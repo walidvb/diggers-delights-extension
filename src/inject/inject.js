@@ -1067,148 +1067,13 @@ function _buildIframe() {
   }));
   return _buildIframe.apply(this, arguments);
 }
-},{"./soundcloud":"fb/iframeBuilders/soundcloud.js","./youtube":"fb/iframeBuilders/youtube.js"}],"fb/index.js":[function(require,module,exports) {
+},{"./soundcloud":"fb/iframeBuilders/soundcloud.js","./youtube":"fb/iframeBuilders/youtube.js"}],"fb/utils/rm_fb_ids.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = init;
-
-var _onDomMutation = _interopRequireDefault(require("./onDomMutation"));
-
-var _iframeBuilders = _interopRequireDefault(require("./iframeBuilders"));
-
-var _index = require("./iframeBuilders/index");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-// fb yields two links, one with the image
-// the other with the video title
-var TOP_LINK_CLASSES_DIFF = ".datstx6m.k4urcfbm";
-
-function init(document) {
-  (0, _onDomMutation.default)(document, handleFacebookVideos, {
-    debounce: true
-  });
-
-  function handleFacebookVideos() {
-    // const threadContainer = document.querySelectorAll('[aria-label="News Feed"]')[0];
-    var links = _toConsumableArray(document.querySelectorAll("a".concat(TOP_LINK_CLASSES_DIFF, ":not(._ns_):not([vbed])[target=\"_blank\"]")));
-
-    var getDomElementMeta = function getDomElementMeta(elem) {
-      return {
-        url: getURL(elem),
-        elem: elem
-      };
-    }; // facebook displays 2 <a> for top posts
-    // const elems = links.map(getDomElementMeta)
-    // facebook displays 2 <a> for top posts
-
-
-    var elemsWithDuplicate = links.map(getDomElementMeta);
-    var urls = elemsWithDuplicate.map(function (_ref) {
-      var url = _ref.url;
-      return url;
-    });
-    var elems = elemsWithDuplicate.filter(function (_ref2, index) {
-      var url = _ref2.url,
-          elem = _ref2.elem;
-
-      if (!(0, _index.isCandidate)(url)) {
-        return false;
-      } // prevent rerunning on a 'duplicate' link
-
-
-      var hasDupe = urls.includes(url, index + 1);
-      return !hasDupe;
-    });
-
-    function isWrapperElement(el) {
-      var isImagePartOfThePost = el.querySelector('img');
-      return isImagePartOfThePost;
-    }
-
-    elems.map(function (_ref3, i) {
-      var url = _ref3.url,
-          elem = _ref3.elem;
-
-      if (!isWrapperElement(elem)) {
-        return;
-      }
-
-      elem.onclick = function (evt) {
-        evt.preventDefault();
-
-        _asyncToGenerator(
-        /*#__PURE__*/
-        regeneratorRuntime.mark(function _callee() {
-          var markup;
-          return regeneratorRuntime.wrap(function _callee$(_context) {
-            while (1) {
-              switch (_context.prev = _context.next) {
-                case 0:
-                  _context.next = 2;
-                  return (0, _iframeBuilders.default)(url);
-
-                case 2:
-                  markup = _context.sent;
-                  elem.insertAdjacentHTML('beforebegin', markup);
-                  elem.style.display = 'none';
-                  elem.remove();
-
-                case 6:
-                case "end":
-                  return _context.stop();
-              }
-            }
-          }, _callee);
-        }))();
-      };
-    });
-  }
-}
-
-function getURL(elem) {
-  if (!/l\.facebook\.com/.test(elem.href)) {
-    return elem.href;
-  }
-
-  return elem.search.slice(1).split('&').map(function (param) {
-    var _param$split = param.split('='),
-        _param$split2 = _slicedToArray(_param$split, 2),
-        k = _param$split2[0],
-        v = _param$split2[1];
-
-    if (k === 'u') {
-      return rmFclid(decodeURIComponent(v));
-    }
-
-    return undefined;
-  }).filter(function (e) {
-    return e;
-  })[0];
-}
+exports.rmFclid = rmFclid;
 
 function rmFclid(href) {
   var a = document.createElement('a');
@@ -1233,27 +1098,280 @@ function rmFclid(href) {
 }
 
 ;
-},{"./onDomMutation":"fb/onDomMutation.js","./iframeBuilders":"fb/iframeBuilders/index.js","./iframeBuilders/index":"fb/iframeBuilders/index.js"}],"inject.js":[function(require,module,exports) {
+},{}],"fb/utils/get_url_from_anchor.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getURL = getURL;
+
+var _rm_fb_ids = require("./rm_fb_ids");
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function getURL(elem) {
+  if (!/l\.facebook\.com/.test(elem.href)) {
+    return elem.href;
+  }
+
+  return elem.search.slice(1).split('&').map(function (param) {
+    var _param$split = param.split('='),
+        _param$split2 = _slicedToArray(_param$split, 2),
+        k = _param$split2[0],
+        v = _param$split2[1];
+
+    if (k === 'u') {
+      return (0, _rm_fb_ids.rmFclid)(decodeURIComponent(v));
+    }
+
+    return undefined;
+  }).filter(function (e) {
+    return e;
+  })[0];
+}
+},{"./rm_fb_ids":"fb/utils/rm_fb_ids.js"}],"fb/utils/getLinksFromPosts.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getLinksFromPosts = void 0;
+
+var _get_url_from_anchor = require("./get_url_from_anchor");
+
+var _index = require("../iframeBuilders/index");
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+// the other with the video title
+var TOP_LINK_CLASSES_DIFF = ".datstx6m.k4urcfbm";
+
+var getLinksFromPosts = function getLinksFromPosts() {
+  // const threadContainer = document.querySelectorAll('[aria-label="News Feed"]')[0];
+  var links = _toConsumableArray(document.querySelectorAll("a".concat(TOP_LINK_CLASSES_DIFF, ":not(._ns_):not([vbed])[target=\"_blank\"]")));
+
+  var getDomElementMeta = function getDomElementMeta(elem) {
+    return isWrapperElement(elem) ? {
+      url: (0, _get_url_from_anchor.getURL)(elem),
+      elem: elem
+    } : null;
+  }; // facebook displays 2 <a> for top posts
+  // const elems = links.map(getDomElementMeta)
+  // facebook displays 2 <a> for top posts
+
+
+  var elemsWithDuplicate = links.map(getDomElementMeta).filter(Boolean);
+  var urls = elemsWithDuplicate.map(function (_ref) {
+    var url = _ref.url;
+    return url;
+  });
+  var elems = elemsWithDuplicate.filter(function (_ref2, index) {
+    var url = _ref2.url,
+        elem = _ref2.elem;
+    // prevent rerunning on a 'duplicate' link
+    var hasDupe = urls.includes(url, index + 1);
+    return !hasDupe;
+  });
+
+  function isWrapperElement(el) {
+    var isImagePartOfThePost = el.querySelector('img');
+    return isImagePartOfThePost;
+  }
+
+  return elems;
+};
+
+exports.getLinksFromPosts = getLinksFromPosts;
+},{"./get_url_from_anchor":"fb/utils/get_url_from_anchor.js","../iframeBuilders/index":"fb/iframeBuilders/index.js"}],"fb/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = onFacebookElem;
+
+var _onDomMutation = _interopRequireDefault(require("./onDomMutation"));
+
+var _iframeBuilders = _interopRequireDefault(require("./iframeBuilders"));
+
+var _getLinksFromPosts = require("./utils/getLinksFromPosts");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isFacebook = function isFacebook() {
+  return /https?:\/\/(www\.)?facebook.com/.test(window.location);
+};
+
+function onFacebookElem(document, cb) {
+  if (!isFacebook()) {
+    return;
+  }
+
+  (0, _onDomMutation.default)(document, handleFacebookVideos, {
+    debounce: true
+  });
+
+  function handleFacebookVideos() {
+    cb((0, _getLinksFromPosts.getLinksFromPosts)());
+  }
+}
+},{"./onDomMutation":"fb/onDomMutation.js","./iframeBuilders":"fb/iframeBuilders/index.js","./utils/getLinksFromPosts":"fb/utils/getLinksFromPosts.js"}],"App.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.App = void 0;
+
+var _iframeBuilders = _interopRequireDefault(require("./fb/iframeBuilders"));
+
+var _index = _interopRequireDefault(require("./fb/index"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var App =
+/*#__PURE__*/
+function () {
+  function App() {
+    _classCallCheck(this, App);
+
+    this.onClose = this.onClose.bind(this);
+    this.onElems = this.onElems.bind(this);
+    this.handleElem = this.handleElem.bind(this);
+    this.play = this.play.bind(this);
+    this.playlist = [];
+    this.addWrapper();
+    (0, _index.default)(document, this.onElems);
+  }
+
+  _createClass(App, [{
+    key: "onClose",
+    value: function onClose() {
+      this.wrapper.remove();
+      this.wrapper = null;
+    }
+  }, {
+    key: "onElems",
+    value: function onElems(elems) {
+      console.log("elems detected: ", elems);
+      elems.map(this.handleElem);
+    }
+  }, {
+    key: "handleElem",
+    value: function handleElem(_ref) {
+      var _this = this;
+
+      var url = _ref.url,
+          elem = _ref.elem;
+
+      elem.onclick = function (evt) {
+        evt.preventDefault();
+
+        _this.play(url);
+      };
+    }
+  }, {
+    key: "play",
+    value: function () {
+      var _play = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee(url) {
+        var markup;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                this.addWrapper();
+                _context.next = 3;
+                return (0, _iframeBuilders.default)(url);
+
+              case 3:
+                markup = _context.sent;
+                this.iframeContainer.innerHTML = markup;
+
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function play(_x) {
+        return _play.apply(this, arguments);
+      }
+
+      return play;
+    }()
+  }, {
+    key: "addWrapper",
+    value: function addWrapper() {
+      if (this.wrapper) {
+        return;
+      }
+
+      var wrapper = document.createElement('div');
+      document.body.appendChild(wrapper);
+      wrapper.id = 'dd-wrapper';
+      var iframeContainer = document.createElement('div');
+      wrapper.appendChild(iframeContainer);
+      this.iframeContainer = iframeContainer;
+      var close = document.createElement('div');
+      close.id = 'dd-close';
+      close.innerText = '╳';
+      close.onclick = this.onClose;
+      wrapper.appendChild(close);
+      this.wrapper = wrapper;
+    }
+  }]);
+
+  return App;
+}();
+
+exports.App = App;
+},{"./fb/iframeBuilders":"fb/iframeBuilders/index.js","./fb/index":"fb/index.js"}],"inject.js":[function(require,module,exports) {
 "use strict";
 
 require("regenerator-runtime/runtime");
 
 var _fb = _interopRequireDefault(require("./fb"));
 
+var _App = require("./App");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 chrome.extension.sendMessage({}, function (response) {
   var readyStateCheckInterval = setInterval(function () {
     if (document.readyState === "complete") {
+      var app = new _App.App(document);
       clearInterval(readyStateCheckInterval);
-      (0, _fb.default)(document); // ----------------------------------------------------------
-      // This part of the script triggers when page is done loading
-
-      console.log("Hello. This message was sent from scrsipts/inject.js"); // ----------------------------------------------------------
     }
   }, 10);
 });
-},{"regenerator-runtime/runtime":"node_modules/regenerator-runtime/runtime.js","./fb":"fb/index.js"}],"../../../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"regenerator-runtime/runtime":"node_modules/regenerator-runtime/runtime.js","./fb":"fb/index.js","./App":"App.js"}],"../../../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -1281,7 +1399,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65095" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52389" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

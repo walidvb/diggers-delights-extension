@@ -15,13 +15,30 @@
     "contentSettings",
     "cookies",
     "https://facebook.com/*",
-    "https://www.facebook.com/*"
+    "https://www.facebook.com/*",
+    "https://web.whatsapp.com/*"
   ],
+  "background": {
+    "scripts": [
+      "src/background/background.js"
+    ],
+    "persistent": true
+  },
+  "commands": {
+    "Ctrl+M": {
+      "suggested_key": {
+        "default": "Ctrl+M",
+        "mac": "Command+M"
+      },
+      "description": "Ctrl+M."
+    }
+  },
   "content_scripts": [
     {
       "matches": [
         "https://www.facebook.com/*",
-        "https://facebook.com/*"
+        "https://facebook.com/*",
+        "https://web.whatsapp.com/*"
       ],
       "css": [
         "src/inject/inject.css"

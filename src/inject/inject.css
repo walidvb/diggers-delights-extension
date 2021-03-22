@@ -1,3 +1,23 @@
 /**
  * Place your custom CSS styles here.
  **/
+
+ #dd-wrapper{
+   position: fixed;
+   bottom: 1rem;
+   left: 1rem;
+   width: 600px;
+ }
+
+ #dd-wrapper iframe{
+   max-width: 100%;
+ }
+ #dd-close{
+   position: absolute;
+   padding: .5rem;
+   right: 0;
+   top: 0;
+   color: white;
+   z-index: 1;
+   cursor: pointer;
+ }
