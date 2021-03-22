@@ -6,7 +6,9 @@
    position: fixed;
    bottom: 1rem;
    left: 1rem;
-   width: 600px;
+   max-width: 600px;
+   padding: .5rem;
+   background: #FFF;
  }
 
  #dd-wrapper iframe{

@@ -1,14 +1,40 @@
 import buildIframe from './fb/iframeBuilders';
 import onFacebookElem from './fb/index';
 import { h } from 'preact'
-import { useEffect } from 'preact/hooks'
+import { useEffect, useReducer, useState } from 'preact/hooks'
+import ReactPlayer from 'react-player';
+
+const usePlaylist = () => {
+  const [nowPlaying, setNowPlaying] = useState("https://youtube.com/watch?v=Rc2zdjQU7RA")
+
+  return {
+    nowPlaying,
+    setNowPlaying,
+  }
+}
 
 export const App = () => {
+  const { nowPlaying, setNowPlaying } = usePlaylist()
   useEffect(() => {
-    onFacebookElem(document, console.log)
+    onFacebookElem(document, (elems) => {
+      elems.map(({ elem, url }) => {
+        elem.onclick = (evt) => {
+          evt.preventDefault()
+          setNowPlaying(url)
+        }
+      })
+    } )
   }, [])
   return <div id="dd-wrapper">
-    Hello world
+    Now Playing: {nowPlaying} {ReactPlayer.canPlay(nowPlaying) ? 'can' : 'not'}
+    <div>
+      <ReactPlayer
+        controls={true}
+        url={nowPlaying}
+        onError={console.log}
+      />
+    </div>
+    Now Playing: {nowPlaying} {ReactPlayer.canPlay(nowPlaying) ? 'can' : 'not'}
   </div>
 }
 
