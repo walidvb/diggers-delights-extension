@@ -16,7 +16,9 @@
     "cookies",
     "https://facebook.com/*",
     "https://www.facebook.com/*",
-    "https://web.whatsapp.com/*"
+    "webRequest",
+    "webRequestBlocking",
+    "a*://*/"
   ],
   "background": {
     "scripts": [
