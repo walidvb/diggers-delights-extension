@@ -1,2 +1,4 @@
 .cache
 *.map
+
+node_modules/
