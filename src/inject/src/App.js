@@ -29,7 +29,7 @@ export const App = () => {
     Now Playing: {nowPlaying} {ReactPlayer.canPlay(nowPlaying) ? 'can' : 'not'}
     <div>
       <ReactPlayer
-        controls={true}
+        controls
         url={nowPlaying}
         onError={console.log}
       />
